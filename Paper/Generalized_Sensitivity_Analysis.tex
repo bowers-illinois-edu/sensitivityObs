@@ -231,6 +231,47 @@
 
 \section{Introduction}
 
+In this paper we propose a generalized sensitivity analysis that assesses how inferences were to change due to departures from uniform random assignment. To make this sensitivity analysis as general as possible, we propose an algorithmic approach that builds upon others based on precise asymptotic distributions and functions that relate baseline covariates to assignment propensities \citep{gastwirthetal2000,rosenbaum2018,rosenbaum1988,rosenbaumkrieger1990}. 
+
+\citet{gastwirthetal2000}, for example, are able to bound the distribution of the test statistic by two known distributions $T^-$ and $T^+$. The test statistic, $T$, is asymptotically Normal as the number of strata approaches $\infty$ such that its limiting Normal distribution is characterized by its expectation and variance (both of which are known under a sharp null hypothesis). The aim is to provide an upper-bound on the probability that the test statistic, $T$, exceeds a fixed value $k$. The limiting Normal distribution that assigns the greatest probability that $T \geq k$ is the distribution that has the largest possible expectation for $T$ and, among distributions with the greatest possible expectation, it is the distribution with the largest variance.
+
+In short, the problem is that there are many candidate values that maximize the significance level. To make the problem more tractable, \citet{gastwirthetal2000} appeal to the asymptotic Normality of the test statistic as the number of strata, $S$, grows to $\infty$. The idea is to choose the values of the unobserved covariate, $u$, that maximizes the p-value. Our approach remains agnostic about the specific values of the baseline covariate and instead postulates a value of $\Gamma$ directly.
+
+First, the \textit{treatment odds} for unit $i \in \left\{1, \ldots , N\right\}$ is $\frac{\pi_i}{\left(1 - \pi_i\right)}$, which is simply the $i$th unit's probability of assignment to treatment divided by that unit's probability of assignment to control. The \textit{treatment odds ratio} for any two units $i$ and $j \neq i$ is simply the ratio of the $i$th unit's treatment odds and the $j$th unit's treatment odds. If units' treatment odds are a function of only observed covariates \textit{and} the researcher is able to obtain balance on all of these observed covariates, then the treatment odds for units $i, j \neq i: \mathbf{x}_i = \mathbf{x}_j$ is identical and their treatment odds ratio is $1$.
+
+\citet{rosenbaum2002observational} considers what would happen when units' treatment odds are a function not only of observed covariates, $\mathbf{x}$, but also an unobserved covariate $u$. Under the assumption of a logistic functional form between all units' treatment odds and baseline covariates, as well as the constraint that $0 \leq u \leq 1$, one can write the treatment odds of the $i$th unit as follows:
+\begin{align*}
+\frac{\pi_i}{\left(1 - \pi_i\right)} & = \exp\left\{\kappa\left(\mathbf{x}_i\right) + \gamma u_i\right\} \\ 
+\log\left(\frac{\pi_i}{\left(1 - \pi_i\right)}\right) & = \kappa\left(\mathbf{x}_i\right) + \gamma u_i,
+\end{align*}
+where $\kappa\left(\cdot\right)$ is an unknown function and $\gamma$ is an unknown parameter, and the the treatment odds ratio for units $i$ and $j$ is:
+\begin{align*}
+\frac{\left(\frac{\pi_i}{1 - \pi_i}\right)}{\left(\frac{\pi_j}{1 - \pi_j}\right)} & = \frac{\exp\left\{\kappa\left(\mathbf{x}_i\right) + \gamma u_i\right\}}{\exp\left\{\kappa\left(\mathbf{x}_j\right) + \gamma u_j\right\}} \\
+& = \exp\left\{\left(\kappa\left(\mathbf{x}_i\right) + \gamma u_i\right) - \left(\kappa\left(\mathbf{x}_j\right) + \gamma u_j\right)\right\}.
+\end{align*}
+If $\mathbf{x}_i = \mathbf{x}_j$, then $\kappa\left(\mathbf{x}_i\right) = \kappa\left(\mathbf{x}_j\right)$ and, hence, the treatment odds ratio is simply:
+\begin{align*}
+\exp\left\{\gamma \left(u_i -  u_j\right)\right\}.
+\end{align*}
+Since $u_i, u_j \in \left[0, 1\right]$, the minimum and maximum possible values of $\left(u_i -  u_j\right)$ are $-1$ and $1$. Therefore, the minimum and maximum possible values of the treatment odds ratio are $\exp\left\{-\gamma\right\}$ and $\exp\left\{\gamma\right\}$. After noting that $\exp\left\{-\gamma\right\} = \frac{1}{\exp\left\{\gamma\right\}}$, we can bound the treatment odds ratio between $i$ and $j$ as follows:
+\begin{equation}
+\frac{1}{\exp\left\{\gamma\right\}} \leq \frac{\left(\frac{\pi_i}{1 - \pi_i}\right)}{\left(\frac{\pi_j}{1 - \pi_j}\right)} \leq \exp\left\{\gamma\right\}.
+\end{equation}
+We can denote $\exp\left\{\gamma\right\}$ by $\Gamma$ and subsequently consider how one's inferences would change for various values of $\Gamma$.
+
+For example, let's say that a researcher obtains balance via stratification on all observed covariates---such that the design closely resembles a uniform, block randomized experiment---and subsequently tests a strong null hypothesis under the assumption that all units' treatment odds are identical. Now the researcher considers deviations from this assumption. Different assumptions about $u$ and $\gamma$ imply differing probabilities of possible assignments, which, as \citet[Chapter 4]{rosenbaum2002observational} shows, can be represented by:
+\begin{equation}
+\Pr\left(\mathbf{Z} = \mathbf{z}\right) = \frac{\exp\left\{\gamma \mathbf{z}^{\prime}\mathbf{u}\right\}}{\sum_{\mathbf{z} \in \Omega} \exp\left\{\gamma \mathbf{z}^{\prime}\mathbf{u}\right\}} = \prod \limits_{b = 1}^B \frac{\exp\left\{\gamma \mathbf{z}^{\prime}\mathbf{u}\right\}}{\sum_{\mathbf{z} \in \Omega} \exp\left\{\gamma \mathbf{z}^{\prime}\mathbf{u}\right\}}.
+\label{eq: prob omega sens}
+\end{equation}
+
+One conservative approach for calculating such probabilities would be to assume that, within each matched set, the value of $u$ for all treated units is $1$ and the value of $u$ for all control units is $0$. Hence, the treatment odds ratio of treated units to control units within each matched set is $\exp\left\{\gamma\right\}$. Now if the researcher were to assume that $\Gamma = 2$, then such an assumption would imply that $\gamma = \log\left(2\right) \approx 0.6931$. Now the researcher can calculate the probability of each possible assignment in $\Omega$ using Equation \ref{eq: prob omega sens}. Notice that in this sensitivity analysis, the only random quantity is $\mathbf{Z}$. Potential outcomes are still fixed and the researcher can test any strong null hypothesis; however, under such a sensitivity analysis, $p$-values will be calculated based on the probabilities of each assignment given in \eqref{eq: prob omega sens} above.
+
+
+The model of an observational study states that units are individually assigned to treatment or control by $n$ \textit{independent}, but not necessarily \textit{identically distributed}, coin tosses: $Z_i \sim \pi_i^{z_i} \left(1 - \pi_i\right)^{1 - z_i} \ \forall \ i = 1, \dots n$ units, where $\forall \ i$: $\pi_i \in (0, 1)$.
+$\pi_i \equiv \lambda\left(\mathbf{x}_i\right) \ \forall \ i$, where $\lambda\left(\cdot\right)$ is an unknown function.
+$Z_i \sim \lambda\left(\mathbf{x}_i\right)^{z_i} \left(1 - \lambda\left(\mathbf{x}_i\right)\right)^{1 - z_i} \ \forall \ i$.
+If $\mathbf{x}_i = \mathbf{x}_j$, where $i \neq j$, it follows that $\pi_i = \pi_j$.
 
 \pagebreak
 \begin{singlespace}
